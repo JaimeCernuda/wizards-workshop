@@ -5,6 +5,7 @@ from .playmat import Playmat
 from .card_generator import CardGenerator
 from .recipes import RecipeBook
 from .recipe_display import RecipeDisplay
+from .environment import Environment
 
 
 class GameManager(Entity):
@@ -18,16 +19,21 @@ class GameManager(Entity):
         self.recipe_book = RecipeBook()
         self.wizard_level = 1
         self.mana_count = 0
+        self.environment = None
+        self.time_ui = None
         
     def setup(self):
         window.borderless = False
         window.title = "Wizard's Workshop"
-        window.color = color.dark_gray
+        window.color = color.rgb(25, 25, 50)  # Dark blue night sky
+        
+        # Setup environment first
+        self.environment = Environment()
         
         camera.orthographic = True
-        camera.fov = 20
-        camera.position = (0, 10, -10)
-        camera.rotation_x = 45
+        camera.fov = 25
+        camera.position = (0, 15, -12)
+        camera.rotation_x = 50
         
         self.playmat = Playmat()
         
@@ -40,6 +46,9 @@ class GameManager(Entity):
         
         # Create recipe display
         self.recipe_display = RecipeDisplay(self.recipe_book)
+        
+        # Setup time UI
+        self.setup_time_ui()
         
     def create_initial_verbs(self):
         # Forge - for crafting tools and items
@@ -140,8 +149,12 @@ class GameManager(Entity):
             elif self.held_card:
                 self.held_card.drag_to(mouse.world_point)
                 
-            # Update UI
+            # Update UI and environment
             self.update_ui()
+            
+            # Update environment
+            if self.environment:
+                self.environment.update_time_cycle()
                 
         Entity(update=update)
         
@@ -225,6 +238,60 @@ class GameManager(Entity):
             origin=(0, 0)
         )
         
+    def setup_time_ui(self):
+        # Time display background
+        self.time_panel = Entity(
+            parent=camera.ui,
+            model="quad",
+            color=color.rgb(20, 20, 40),
+            scale=(0.25, 0.08, 1),
+            position=(0, 0.42, 0),
+            alpha=0.8
+        )
+        
+        # Clock display
+        self.clock_text = Text(
+            text="12:00 AM",
+            parent=self.time_panel,
+            position=(0, 0.01, -0.01),
+            scale=2.5,
+            origin=(0, 0),
+            color=color.white
+        )
+        
+        # Day phase display
+        self.phase_text = Text(
+            text="Night",
+            parent=self.time_panel,
+            position=(0, -0.02, -0.01),
+            scale=1.8,
+            origin=(0, 0),
+            color=color.cyan
+        )
+        
+        # Sun/Moon icon
+        self.time_icon = Entity(
+            parent=self.time_panel,
+            model="sphere",
+            scale=0.02,
+            position=(-0.08, 0, -0.01),
+            color=color.yellow
+        )
+        
     def update_ui(self):
         self.mana_count = sum(1 for card in self.cards if card.title == "Mana")
         self.mana_text.text = f"Mana: {self.mana_count}"
+        
+        # Update time display
+        if self.environment and hasattr(self, 'clock_text'):
+            self.clock_text.text = self.environment.get_time_string()
+            self.phase_text.text = self.environment.get_day_phase()
+            
+            # Update icon based on time
+            phase = self.environment.get_day_phase()
+            if phase in ["Morning", "Afternoon"]:
+                self.time_icon.color = color.yellow  # Sun
+                self.time_icon.scale = 0.025
+            else:
+                self.time_icon.color = color.light_gray  # Moon
+                self.time_icon.scale = 0.02

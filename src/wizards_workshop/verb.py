@@ -1,5 +1,6 @@
 from ursina import *
 import time
+import math
 from .recipes import RecipeBook
 
 
@@ -23,14 +24,151 @@ class Verb3D(Entity):
         self.setup_interaction_zone()
         
     def setup_appearance(self):
+        # Enhanced station appearance based on type
+        self.setup_station_details()
+        
         self.name_text = Text(
             text=self.verb_name.upper(),
             parent=self,
             origin=(0, 0),
             scale=10,
             color=color.white,
-            position=(0, self.scale_y + 1, 0),
+            position=(0, self.scale_y + 1.5, 0),
             billboard=True
+        )
+        
+    def setup_station_details(self):
+        if self.verb_name == "forge":
+            self.setup_forge_details()
+        elif self.verb_name == "study":
+            self.setup_study_details()
+        elif self.verb_name == "ritual":
+            self.setup_ritual_details()
+        elif self.verb_name == "alchemy":
+            self.setup_alchemy_details()
+            
+    def setup_forge_details(self):
+        # Add anvil on top
+        self.anvil = Entity(
+            parent=self,
+            model="cube",
+            scale=(0.8, 0.3, 0.4),
+            position=(0, self.scale_y + 0.3, 0),
+            color=color.dark_gray
+        )
+        
+        # Add forge fire effect
+        self.fire = Entity(
+            parent=self,
+            model="sphere",
+            scale=(0.5, 0.8, 0.5),
+            position=(0.5, self.scale_y + 0.8, 0),
+            color=color.orange,
+            alpha=0.7
+        )
+        
+        # Add hammers
+        for i, pos in enumerate([(-0.6, self.scale_y + 0.5, 0.3), (0.6, self.scale_y + 0.5, -0.3)]):
+            hammer = Entity(
+                parent=self,
+                model="cube",
+                scale=(0.1, 0.6, 0.1),
+                position=pos,
+                color=color.brown,
+                rotation_z=45 if i == 0 else -45
+            )
+            
+    def setup_study_details(self):
+        # Add books
+        book_positions = [
+            (-0.6, self.scale_y + 0.3, 0.2),
+            (0, self.scale_y + 0.3, -0.4),
+            (0.5, self.scale_y + 0.3, 0.3)
+        ]
+        
+        for i, pos in enumerate(book_positions):
+            book = Entity(
+                parent=self,
+                model="cube",
+                scale=(0.3, 0.1, 0.4),
+                position=pos,
+                color=color.rgb(random.randint(100, 200), random.randint(50, 150), random.randint(50, 100)),
+                rotation_y=random.randint(0, 360)
+            )
+            
+        # Add quill and ink
+        self.quill = Entity(
+            parent=self,
+            model="cube",
+            scale=(0.05, 0.4, 0.05),
+            position=(0.3, self.scale_y + 0.4, -0.2),
+            color=color.white,
+            rotation_z=15
+        )
+        
+    def setup_ritual_details(self):
+        # Add candles around the circle
+        for i in range(6):
+            angle = i * 60
+            x = math.cos(math.radians(angle)) * 1.2
+            z = math.sin(math.radians(angle)) * 1.2
+            
+            candle = Entity(
+                parent=self,
+                model="cube",
+                scale=(0.1, 0.6, 0.1),
+                position=(x, self.scale_y + 0.4, z),
+                color=color.yellow
+            )
+            
+            # Candle flame
+            flame = Entity(
+                parent=candle,
+                model="sphere",
+                scale=(0.3, 0.5, 0.3),
+                position=(0, 0.4, 0),
+                color=color.orange,
+                alpha=0.8
+            )
+            
+        # Central ritual symbol
+        self.symbol = Entity(
+            parent=self,
+            model="sphere",
+            scale=(0.8, 0.05, 0.8),
+            position=(0, self.scale_y + 0.15, 0),
+            color=color.violet,
+            alpha=0.6
+        )
+        
+    def setup_alchemy_details(self):
+        # Add bottles and flasks
+        bottle_positions = [
+            (0, self.scale_y + 0.8, 0),
+            (-0.5, self.scale_y + 0.6, 0.3),
+            (0.4, self.scale_y + 0.5, -0.2)
+        ]
+        
+        colors = [color.green, color.blue, color.red]
+        
+        for i, pos in enumerate(bottle_positions):
+            bottle = Entity(
+                parent=self,
+                model="sphere",
+                scale=(0.2, 0.4, 0.2),
+                position=pos,
+                color=colors[i % len(colors)],
+                alpha=0.8
+            )
+            
+        # Add bubbling effect
+        self.bubbles = Entity(
+            parent=self,
+            model="sphere",
+            scale=(0.3, 0.3, 0.3),
+            position=(0, self.scale_y + 1.2, 0),
+            color=color.cyan,
+            alpha=0.5
         )
         
     def setup_interaction_zone(self):
@@ -112,8 +250,24 @@ class Verb3D(Entity):
                     # Update visual progress
                     self.interaction_zone.color = color.lime * (1 - progress) + color.yellow * progress
                     invoke(check_process, delay=0.1)
-                    
-        invoke(check_process, delay=0.1)
+            
+    def update(self):
+        # Animate station effects
+        if hasattr(self, 'fire'):
+            # Animate forge fire
+            self.fire.scale_y = 0.8 + 0.2 * math.sin(time.time() * 3)
+            self.fire.rotation_y += 50 * time.dt
+            
+        if hasattr(self, 'symbol'):
+            # Animate ritual symbol
+            self.symbol.rotation_y += 30 * time.dt
+            pulse = 1 + 0.1 * math.sin(time.time() * 2)
+            self.symbol.alpha = 0.6 * pulse
+            
+        if hasattr(self, 'bubbles'):
+            # Animate alchemy bubbles
+            self.bubbles.y = self.scale_y + 1.2 + 0.3 * math.sin(time.time() * 2)
+            self.bubbles.rotation_x += 20 * time.dt
         
     def complete_processing(self):
         self.is_processing = False
