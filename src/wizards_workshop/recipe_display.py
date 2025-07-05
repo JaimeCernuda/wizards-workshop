@@ -45,17 +45,17 @@ class RecipeDisplay(Entity):
             
         # Navigation
         self.prev_button = Button(
-            text="<",
+            text="Prev",
             parent=self.panel,
-            scale=(0.05, 0.05),
+            scale=(0.08, 0.05),
             position=(-0.1, -0.18, -0.01),
             on_click=self.prev_page
         )
         
         self.next_button = Button(
-            text=">",
+            text="Next",
             parent=self.panel,
-            scale=(0.05, 0.05),
+            scale=(0.08, 0.05),
             position=(0.1, -0.18, -0.01),
             on_click=self.next_page
         )

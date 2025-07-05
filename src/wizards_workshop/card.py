@@ -34,7 +34,7 @@ class Card(Entity):
             "essence": {"color": color.orange, "border": color.red},
             "potion": {"color": color.lime, "border": color.green},
             "crystal": {"color": color.magenta, "border": color.violet},
-            "herb": {"color": color.green, "border": color.dark_green},
+            "herb": {"color": color.green, "border": color.dark_gray},
             "generic": {"color": color.white, "border": color.gray}
         }
         
