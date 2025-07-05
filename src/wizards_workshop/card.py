@@ -29,11 +29,11 @@ class Card(Entity):
             "ingredient": {"color": color.light_gray, "border": color.dark_gray},
             "knowledge": {"color": color.azure, "border": color.blue},
             "tool": {"color": color.brown, "border": color.dark_gray},
-            "mana": {"color": color.cyan, "border": color.dark_cyan},
-            "spell": {"color": color.violet, "border": color.dark_violet},
-            "essence": {"color": color.orange, "border": color.dark_orange},
-            "potion": {"color": color.lime, "border": color.dark_green},
-            "crystal": {"color": color.magenta, "border": color.dark_magenta},
+            "mana": {"color": color.cyan, "border": color.blue},
+            "spell": {"color": color.violet, "border": color.magenta},
+            "essence": {"color": color.orange, "border": color.red},
+            "potion": {"color": color.lime, "border": color.green},
+            "crystal": {"color": color.magenta, "border": color.violet},
             "herb": {"color": color.green, "border": color.dark_green},
             "generic": {"color": color.white, "border": color.gray}
         }

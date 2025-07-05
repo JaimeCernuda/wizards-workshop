@@ -68,7 +68,7 @@ class GameManager(Entity):
         ritual = Verb3D(
             position=(0, 0, 5),
             name="ritual",
-            model="cylinder",
+            model="cube",
             color=color.violet,
             scale=(3, 0.2, 3),
             game_manager=self
