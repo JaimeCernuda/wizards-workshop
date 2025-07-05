@@ -1,0 +1,20 @@
+[project]
+name = "wizards-workshop"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Jaime Cernuda", email = "jcernudagarcia@hawk.iit.edu" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "pillow>=11.3.0",
+    "ursina>=7.0.0",
+]
+
+[project.scripts]
+wizards-workshop = "wizards_workshop:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
